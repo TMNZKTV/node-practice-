@@ -1,21 +1,14 @@
-/* eslint-disable no-sequences */
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-unused-expressions */
-/* eslint-disable consistent-return */
-let posts = [
-  { id: "1", topic: "test1", text: "text1" },
-  { id: "2", topic: "test2", text: "text2" },
-  { id: "3", topic: "test3", text: "text3" },
-  { id: "4", topic: "test4", text: "text4" },
-  { id: "5", topic: "test5", text: "text5" },
-];
+const { connectMongo } = require("../db/connection");
+const ObjectId = require("mongodb").ObjectID;
 
-const getPosts = (req, res) => {
-  res.json({ posts, status: "SUCCESS" });
+const getPosts = async (req, res) => {
+  const posts = await req.db1.Posts.find({}).toArray();
+  res.json({ posts });
 };
 
-const getPostByID = (req, res) => {
-  const [post] = posts.filter((item) => item.id === req.params.id);
+const getPostByID = async (req, res) => {
+  const { id } = req.params;
+  const post = await req.db.Posts.findOne({ _id: new ObjectId(id) });
 
   if (!post) {
     return res
@@ -26,43 +19,27 @@ const getPostByID = (req, res) => {
   res.json({ post, status: "SUCCESS" });
 };
 
-const addPost = (req, res) => {
+const addPost = async (req, res) => {
   const { topic, text } = req.body;
 
-  posts.push({
-    id: new Date().getTime().toString(),
-    topic,
-    text,
-  });
+  await req.db.Posts.insert({ topic, text });
 
   res.json({ status: "SUCCESS" });
 };
 
-const putPost = (req, res) => {
+const putPost = async (req, res) => {
   const { topic, text } = req.body;
 
-  posts.forEach((post) => {
-    if (post.id === req.params.id) {
-      (post.topic = topic), (post.text = text);
-    }
-  });
+  await req.db.Posts.updateOne(
+    { _id: new ObjectId(req.params.id) },
+    { $set: { topic, text } }
+  );
   res.json({ status: "SUCCESS" });
 };
 
-const patchPost = (req, res) => {
-  const { topic, text } = req.body;
-
-  posts.forEach((post) => {
-    if (post.id === req.params.id) {
-      (post.topic = topic), (post.text = text);
-    }
-  });
+const deletePost = async (req, res) => {
+  await req.db.Posts.deleteOne({ _id: new ObjectId(req.params.id) });
   res.json({ status: "SUCCESS" });
-};
-
-const deletePost = (req, res) => {
-  posts = posts.filter((item) => item.id !== req.params.id);
-  res.json({ posts, status: "SUCCESS" });
 };
 
 module.exports = {
@@ -70,6 +47,6 @@ module.exports = {
   getPostByID,
   addPost,
   putPost,
-  patchPost,
+  // patchPost,
   deletePost,
 };
