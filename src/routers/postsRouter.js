@@ -3,47 +3,36 @@ const express = require("express");
 const router = new express.Router();
 
 // Создали отдельные функции валидации
-const {
-  addPostValidation,
-  // patchPostValidation,
-} = require("../midllewares/validationMiddleware");
+const { addPostValidation } = require("../midllewares/validationMiddleware");
 
 const { asyncWrapper } = require("../helpers/apiHelpers");
 
-const modelsMiddleware = require("../midllewares/models");
+// const modelsMiddleware = require("../midllewares/models");
 
 // Cоздали контроллеры
 const {
-  getPosts,
-  getPostByID,
-  addPost,
-  putPost,
-  // patchPost,
-  deletePost,
+  getPostsController,
+  getPostByIDController,
+  addPostController,
+  changePostController,
+  deletePostController,
 } = require("../controllers/postController");
 
-// Для всех запросов
-router.use(modelsMiddleware);
-
 // Возвращаем все посты
-router.get("/", asyncWrapper(getPosts));
+router.get("/", asyncWrapper(getPostsController));
 
 // Фильтруем посты по нужному ID, деструктурируем, возвращаем пост в ответе.
-router.get("/:id", asyncWrapper(getPostByID));
+router.get("/:id", asyncWrapper(getPostByIDController));
 
 // В посты пушим новый объект с топиком и текстом
-router.post("/", addPostValidation, asyncWrapper(addPost));
+router.post("/", addPostValidation, asyncWrapper(addPostController));
 
 // Перебираем посты.
 // Если ID поста равен ID клиента, подменяем текст и топик из тела.
-router.put("/:id", addPostValidation, asyncWrapper(putPost));
-
-// Перебираем посты.
-// Если ID поста равен ID клиента, подменяем ЛИБО текст, ЛИБО топик из тела.
-// router.patch("/:id", patchPostValidation, patchPost);
+router.put("/:id", addPostValidation, asyncWrapper(changePostController));
 
 // Посты - все посты, не имеющие id, который отправил клиент
-router.delete("/:id", asyncWrapper(deletePost));
+router.delete("/:id", asyncWrapper(deletePostController));
 
 module.exports = {
   postsRouter: router,

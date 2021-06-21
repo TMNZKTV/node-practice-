@@ -1,10 +1,10 @@
 /* eslint-disable newline-per-chained-call */
 /* eslint-disable consistent-return */
 const Joi = require("joi");
+const { ValidationError, WrongParameterError } = require("../helpers/errors");
 
 module.exports = {
   addPostValidation: (req, res, next) => {
-    // next(new Error("Validation failed!"));
     // Объявляему схему валидации
     const schema = Joi.object({
       // eslint-disable-next-line newline-per-chained-call
@@ -17,7 +17,7 @@ module.exports = {
 
     // Если есть ошибка
     if (validationResult.error) {
-      return res.status(400).json({ status: validationResult.error.details });
+      newxt(new ValidationError(validationResult.error.details));
     }
 
     next();
