@@ -8,8 +8,8 @@ module.exports = {
     // Объявляему схему валидации
     const schema = Joi.object({
       // eslint-disable-next-line newline-per-chained-call
-      topic: Joi.string().alphanum().min(3).max(30).required(),
-      text: Joi.string().alphanum().min(10).max(400).required(),
+      topic: Joi.string().min(3).max(30).required(),
+      text: Joi.string().min(10).max(400).required(),
     });
 
     // Проверяем данные клиента на валидацию
@@ -17,7 +17,7 @@ module.exports = {
 
     // Если есть ошибка
     if (validationResult.error) {
-      newxt(new ValidationError(validationResult.error.details));
+      next(new ValidationError(JSON.stringify(validationResult.error.details)));
     }
 
     next();

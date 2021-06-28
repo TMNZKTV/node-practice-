@@ -5,9 +5,9 @@ const router = new express.Router();
 // Создали отдельные функции валидации
 const { addPostValidation } = require("../midllewares/validationMiddleware");
 
-const { asyncWrapper } = require("../helpers/apiHelpers");
+const { authMiddleware } = require("../midllewares/authMiddleware");
 
-// const modelsMiddleware = require("../midllewares/models");
+const { asyncWrapper } = require("../helpers/apiHelpers");
 
 // Cоздали контроллеры
 const {
@@ -18,20 +18,16 @@ const {
   deletePostController,
 } = require("../controllers/postController");
 
-// Возвращаем все посты
+router.use(authMiddleware);
+
 router.get("/", asyncWrapper(getPostsController));
 
-// Фильтруем посты по нужному ID, деструктурируем, возвращаем пост в ответе.
 router.get("/:id", asyncWrapper(getPostByIDController));
 
-// В посты пушим новый объект с топиком и текстом
 router.post("/", addPostValidation, asyncWrapper(addPostController));
 
-// Перебираем посты.
-// Если ID поста равен ID клиента, подменяем текст и топик из тела.
 router.put("/:id", addPostValidation, asyncWrapper(changePostController));
 
-// Посты - все посты, не имеющие id, который отправил клиент
 router.delete("/:id", asyncWrapper(deletePostController));
 
 module.exports = {
