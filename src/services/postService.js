@@ -1,30 +1,33 @@
-const { Post } = require("../db/postModal");
-const { WrongParametrError } = require("../helpers/errors");
+const { Post } = require("../db/postModel");
+const { WrongParameterError } = require("../helpers/errors");
 
-const getPosts = () => {
-  const posts = await Post.find({});
+const getPosts = async (userId) => {
+  const posts = await Post.find({ userId });
   return posts;
 };
 
-const getPostById = (id) => {
-  const post = await Post.findById(id);
+const getPostById = async (postId, userId) => {
+  const post = await Post.findOne({ _id: postId, userId });
   if (!post) {
-    throw new WrongParametrError(`no post with id ${id} found`);
+    throw new WrongParameterError(`no post with id ${postId} found`);
   }
   return post;
 };
 
-const addPost = ({ topic, text }) => {
-  const post = new Post({ topic, text });
+const addPost = async ({ topic, text }, userId) => {
+  const post = new Post({ topic, text, userId });
   await post.save();
 };
 
-const updatePostById = (id, { text, topic }) => {
-  await Post.findByIdAndUpdate(id, { $set: { topic, text } });
+const updatePostById = async (postId, { text, topic }, userId) => {
+  await Post.findOneAndUpdate(
+    { _id: postId, userId },
+    { $set: { topic, text } }
+  );
 };
 
-const deletePostById = (id) => {
-  await Post.findByIdAndRemove(id);
+const deletePostById = async (postId, userId) => {
+  await Post.findOneAndRemove({ _id: postId, userId });
 };
 
 module.exports = {

@@ -7,33 +7,42 @@ const {
 } = require("../services/postService");
 
 const getPostsController = async (req, res) => {
-  const posts = await getPosts();
+  const { _id: userId } = req.user;
+
+  const posts = await getPosts(userId);
   res.json({ posts });
 };
 
 const getPostByIDController = async (req, res) => {
-  const { id } = req.params;
-  const post = await getPostById(id);
+  const { id: postId } = req.params;
+  const { _id: userId } = req.user;
+
+  const post = await getPostById(postId, userId);
   res.json({ post, status: "SUCCESS" });
 };
 
 const addPostController = async (req, res) => {
   const { topic, text } = req.body;
-  await addPost({ topic, text });
+  const { _id: userId } = req.user;
+
+  await addPost({ topic, text }, userId);
   res.json({ status: "SUCCESS" });
 };
 
 const changePostController = async (req, res) => {
   const { topic, text } = req.body;
-  const { id } = req.params;
+  const { id: postId } = req.params;
+  const { _id: userId } = req.user;
 
-  await updatePostById(id, { topic, text });
+  await updatePostById(postId, { topic, text }, userId);
   res.json({ status: "SUCCESS" });
 };
 
 const deletePostController = async (req, res) => {
-  const { id } = req.params;
-  await deletePostById(id);
+  const { id: postId } = req.params;
+  const { _id: userId } = req.user;
+
+  await deletePostById(postId, userId);
   res.json({ status: "SUCCESS" });
 };
 
